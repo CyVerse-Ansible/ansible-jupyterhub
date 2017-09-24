@@ -1,0 +1,9 @@
+- name: restart apache2
+  systemd:
+    name: apache2
+    state: restarted
+
+- name: restart jupyterhub
+  systemd:
+    name: jupyterhub
+    state: restarted

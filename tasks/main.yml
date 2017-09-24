@@ -1,0 +1,134 @@
+---
+# This task file controls the main install and delegate tasks to distro specific files
+
+- name: load os specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
+    - "defaults.yml"
+
+- name: execute tasks specific tasks
+  include: "{{ ansible_distribution }}.yml"
+
+- name: install npm proxy
+  npm:
+    name: configurable-http-proxy
+    global: yes
+
+- name: upgrade pip3
+  pip:
+    name: pip
+    state: latest
+    executable: pip3
+
+- name: install the REMOTE_USER authenticator
+  git:
+    repo: https://github.com/cwaldbieser/jhub_remote_user_authenticator.git
+    dest: /opt/jhub_remote_user_authenticator
+
+- name: install jupyter, jupyterhub, and other pip packages (as necessary)
+  pip:
+    name: "{{ item }}"
+    state: latest
+    executable: pip3
+  with_items:
+    - notebook
+    - jupyterhub
+    - dockerspawner
+    - /opt/jhub_remote_user_authenticator
+
+###
+# This is for mod_auth_cas
+###
+    
+- name: download the mod_auth_cas
+  git:
+    repo: https://github.com/apereo/mod_auth_cas.git
+    dest: /opt/mod_auth_cas
+    version: "v1.1"
+    force: yes
+
+- name: run autoreconf for mod_auth_cas
+  command: autoreconf -ivf chdir=/opt/mod_auth_cas
+
+- name: run configure for mod_auth_cas
+  command: ./configure chdir=/opt/mod_auth_cas
+
+- name: run make for mod_auth_cas
+  command: make chdir=/opt/mod_auth_cas
+
+- name: run make install for mod_auth_cas
+  command: make install chdir=/opt/mod_auth_cas
+
+- name: Install the mod_auth_cas module config
+  copy:
+    src: auth_cas.load
+    dest: "{{ jupyterhub_mod_auth_cas_config_path}}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart apache2
+
+- name: create the cache directory for mod_auth_cas
+  file:
+    path: "/var/cache/apache2/mod_auth_cas/"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0755
+  
+###
+# This is for apache
+###
+- name: execute apache specific tasks, varies by distro
+  include: "{{ ansible_distribution }}-apache.yml"
+
+###
+# This is to initialize docker
+###
+
+- name: docker pull the jupyterhub image
+  command: "docker pull {{ jupyterhub_docker_image }}"
+# note: this did not work reliably given this error: https://github.com/ansible/ansible/issues/20492
+#  docker:
+#    image: "{{ jupyterhub_docker_image }}"
+#    state: present
+#    pull: missing
+
+###
+# This is for jupyterhub configuration
+###
+- name: make/verify the jupyterhub system config directory
+  file:
+    path: "{{ jupyterhub_system_config }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+    
+- name: copy over the jupyterhub config
+  template:
+    src: jupyterhub_config.py.j2
+    dest: "{{ jupyterhub_system_config }}/jupyterhub_config.py"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart jupyterhub
+
+###
+# This is for the jupyterhub systemd service
+###
+- name: install the systemd jupyterhub service
+  template:
+    src: jupyterhub.service.j2
+    dest: /lib/systemd/system/jupyterhub.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart jupyterhub
+
+- name: enable the service
+  systemd:
+    name: jupyterhub
+    enabled: yes
+    state: started

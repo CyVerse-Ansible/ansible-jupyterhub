@@ -1,0 +1,18 @@
+---
+# This is Ubuntu specific tasks to configure apache
+- name: copy the mod_proxy_wstunnel.so file
+  copy:
+    src: mod_proxy_wstunnel.so
+    owner: root
+    group: root
+    mode: 0755
+  notify: restart apache2
+
+- name: install the jupyterhub.conf
+  copy:
+    src: jupyterhub.conf
+    dest: /etc/httpd/conf.d/jupyterhub.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart apache2

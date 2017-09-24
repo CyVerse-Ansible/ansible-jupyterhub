@@ -1,0 +1,5 @@
+#jupyterhub_systemd_service_location: "/lib/systemd/system/"
+jupyterhub_systemd_after: "network-online.target"
+
+# this is location of the mod_auth_cas config
+jupyterhub_mod_auth_cas_config_path: "/etc/httpd/conf.d/mod_auth_cas.conf"

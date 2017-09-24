@@ -1,0 +1,22 @@
+---
+# This is Ubuntu specific tasks
+
+- name: Install Ubuntu package dependencies
+  apt:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  with_items:
+    - npm
+    - nodejs-legacy
+    - python3-pip
+    - python-virtualenv
+    - python-dev
+    - apache2
+    - apache2-dev
+    - apache2-utils
+    - libtool
+    - libcurl3
+    - libcurl4-openssl-dev
+    - libpcre3
+    - libpcre3-dev
