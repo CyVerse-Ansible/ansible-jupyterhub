@@ -12,8 +12,13 @@
     - proxy_wstunnel
   notify: restart apache2
 
+- name: stat the default site
+  stat: path=/etc/apache2/sites-enabled/000-default.conf
+  register: default_site
+
 - name: disable default site
   command: a2dissite 000-default
+  when: default_site.stat.exists == True
   notify: restart apache2
 
 - name: install the jupyterhub.conf
