@@ -6,7 +6,6 @@
     owner: root
     group: root
     mode: 0755
-  notify: restart apache2
 
 - name: install the jupyterhub.conf
   copy:
@@ -15,4 +14,3 @@
     owner: root
     group: root
     mode: 0644
-  notify: restart apache2

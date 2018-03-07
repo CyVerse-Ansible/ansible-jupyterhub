@@ -1,9 +1,11 @@
-- name: restart apache2
-  systemd:
-    name: apache2
-    state: restarted
+# because we use ansible-pull and include_role (dynamic includes), handlers do not work
 
-- name: restart jupyterhub
-  systemd:
-    name: jupyterhub
-    state: restarted
+#- name: restart apache2
+#  systemd:
+#    name: apache2
+#    state: restarted
+
+#- name: restart jupyterhub
+#  systemd:
+#    name: jupyterhub
+#    state: restarted
