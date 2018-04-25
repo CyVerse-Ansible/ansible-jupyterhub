@@ -37,54 +37,10 @@
     - /opt/jhub_remote_user_authenticator
 
 ###
-# This is for mod_auth_cas
-###
-    
-- name: download the mod_auth_cas
-  git:
-    repo: https://github.com/apereo/mod_auth_cas.git
-    dest: /opt/mod_auth_cas
-    version: "v1.1"
-    force: yes
-
-- name: run autoreconf for mod_auth_cas
-  command: autoreconf -ivf chdir=/opt/mod_auth_cas
-
-- name: run configure for mod_auth_cas
-  command: ./configure chdir=/opt/mod_auth_cas
-
-- name: run make for mod_auth_cas
-  command: make chdir=/opt/mod_auth_cas
-
-- name: run make install for mod_auth_cas
-  command: make install chdir=/opt/mod_auth_cas
-
-- name: Install the mod_auth_cas module config
-  copy:
-    src: auth_cas.load
-    dest: "{{ jupyterhub_mod_auth_cas_config_path}}"
-    owner: root
-    group: root
-    mode: 0644
-
-- name: create the cache directory for mod_auth_cas
-  file:
-    path: "/var/cache/apache2/mod_auth_cas/"
-    state: directory
-    owner: www-data
-    group: www-data
-    mode: 0755
-  
-###
 # This is for apache
 ###
 - name: execute apache specific tasks, varies by distro
   include: "{{ ansible_distribution }}-apache.yml"
-
-- name: force restart of apache
-  systemd:
-    name: apache2
-    state: restarted
 
 ###
 # This is to initialize docker

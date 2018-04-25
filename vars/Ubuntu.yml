@@ -3,3 +3,7 @@ jupyterhub_systemd_after: "syslog.target network.target"
 
 # this is location of the mod_auth_cas config
 jupyterhub_mod_auth_cas_config_path: "/etc/apache2/mods-available/auth_cas.load"
+
+# this is the user and group for apache
+jupyterhub_apache_user: "www-data"
+jupyterhub_apache_group: "www-data"

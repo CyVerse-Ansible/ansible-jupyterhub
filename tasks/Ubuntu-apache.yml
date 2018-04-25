@@ -24,3 +24,8 @@
 
 - name: enable jupyterhub config file
   command: a2ensite jupyterhub
+
+- name: force restart of apache
+  systemd:
+    name: apache2
+    state: restarted

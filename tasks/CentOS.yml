@@ -1,8 +1,8 @@
 ---
-# This is Ubuntu specific tasks
+# This is CentOS specific tasks
 
-- name: Install Ubuntu package dependencies
-  apt:
+- name: Install CentOS package dependencies
+  yum:
     name: "{{ item }}"
     state: latest
     update_cache: yes
@@ -12,17 +12,19 @@
     - python34
     - python34-setuptools
     - python34-devel
+    - python34-pip
     - httpd
     - httpd-devel
     - httpd-tools
     - libtool
-    - libcurl3
-    - libcurl3-devel
+    - libcurl
+    - libcurl-devel
     - pcre
     - pcre-devel
+    - mod_auth_cas
 
-- name: Install pip under python3
-  command: /usr/bin/python3 easy_install.py pip chdir=/usr/lib/python3.4/site-packages/
+#- name: Install pip under python3
+#  command: /usr/bin/python3 easy_install.py pip chdir=/usr/lib/python3.4/site-packages/
 
 - name: install virtualenv
   pip:
