@@ -1,7 +1,9 @@
 ---
 # This is Ubuntu specific tasks
 
-- name: Install Ubuntu package dependencies
+## TODO: fix logic how ubuntu major version packages logic
+
+- name: Install Ubuntu package dependencies for Ubuntu 16
   apt:
     name: "{{ item }}"
     state: latest
@@ -21,3 +23,26 @@
     - libcurl4-openssl-dev
     - libpcre3
     - libpcre3-dev
+  when: ansible_distribution_major_version <= 16
+
+- name: Install Ubuntu package dependencies for Ubuntu 18+
+  apt:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  with_items:
+    - npm
+    - nodejs
+    - python3-pip
+    - python-virtualenv
+    - python-dev
+    - apache2
+    - apache2-dev
+    - apache2-utils
+    - libapache2-mod-auth-cas
+    - libtool
+    - libcurl4
+    - libcurl4-openssl-dev
+    - libpcre3
+    - libpcre3-dev
+  when: ansible_distribution_major_version > 18
