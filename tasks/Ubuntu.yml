@@ -41,7 +41,6 @@
     - apache2-utils
     - libapache2-mod-auth-cas
     - libtool
-    - libcurl4
     - libcurl4-openssl-dev
     - libpcre3
     - libpcre3-dev
