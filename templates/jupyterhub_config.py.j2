@@ -6,6 +6,9 @@ c.JupyterHub.proxy_api_ip = '{{ jupyterhub_dockerhost_ip }}'
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.Spawner.debug = True
 c.Spawner.mem_limit = '2G'
+{% if jupyterhub_enable_lab is defined and jupyterhub_enable_lab %}
+c.Spawner.environment = { 'JUPYTER_ENABLE_LAB': 'yes' }
+{% endif %}
 c.DockerSpawner.hub_ip_connect = '{{ jupyterhub_dockerhost_ip }}'
 c.DockerSpawner.image = '{{ jupyterhub_docker_image }}'
 

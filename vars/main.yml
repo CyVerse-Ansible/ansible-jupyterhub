@@ -1,2 +1,3 @@
 ---
 # vars file for ansible-jupyterhub
+jupyterhub_enable_lab: false
