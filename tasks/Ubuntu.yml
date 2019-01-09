@@ -33,6 +33,8 @@
   with_items:
     - npm
     - nodejs
+    - nodejs-dev
+    - node-gyp
     - python3-pip
     - python-virtualenv
     - python-dev
@@ -44,4 +46,5 @@
     - libcurl4-openssl-dev
     - libpcre3
     - libpcre3-dev
-  when: ansible_distribution_major_version > 18
+    - libssl1.0-dev
+  when: ansible_distribution_major_version > 16
