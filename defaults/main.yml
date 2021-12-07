@@ -1,20 +1,5 @@
-# defaults for jupyterhub
-
-# location of jupyterhub config
-jupyterhub_system_config: "/etc/jupyterhub"
-
-# the default location for jupyterhub log
-jupyterhub_log: "/var/log/jupyterhub.log"
-
-# default ip for docker host (docker0)
-jupyterhub_dockerhost_ip: "172.17.0.1"
-
-# default docker image to install
-# Note: better options can be found here: https://github.com/jupyter/docker-stacks
-#jupyterhub_docker_image: "jupyterhub/singleuser:0.7.2"
-jupyterhub_docker_image: "jupyter/datascience-notebook"
-
-# default to an empty set of admins
-# otherwise, admins can be specified as python set
-# jupyterhub_config_admin_users: "{'edwins','nirav'}"
-jupyterhub_config_admin_users: "set()"
+namespace: kube-jupyterhub
+AUTH_CLASS: none
+OAUTH2_CLIENT_ID: 4796cf6a0514ade9fc94
+OAUTH2_CLIENT_SECRET: 5907adea090c674bb9f96dcdf6d3e34c62edad0d
+OAUTH2_callback_url: http://10.0.2.15

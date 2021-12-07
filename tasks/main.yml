@@ -1,96 +1,41 @@
 ---
-# This task file controls the main install and delegate tasks to distro specific files
+# This task file requires kubernetes.core. Install with:
+# ansible-galaxy collection install kubernetes.core
 
-- name: load os specific variables
-  include_vars: "{{ item }}"
-  with_first_found:
-    - "{{ ansible_distribution }}.yml"
+- name: FAIL; check github auth
+  fail:
+    msg: "auth classs is set to dummy but DUMMY_PASS is not defined"
+  when: AUTH_CLASS == "github" and (OAUTH2_CLIENT_ID is not defined or OAUTH2_CLIENT_SECRET is not defined)
 
-- name: execute tasks specific tasks
-  include: "{{ ansible_distribution }}.yml"
+- name: FAIL; check dummy pass
+  fail:
+    msg: "auth classs is set to dummy but DUMMY_PASS is not defined"
+  when: AUTH_CLASS == "dummy" and DUMMY_PASS is not defined
 
-- name: install npm proxy
-  npm:
-    name: configurable-http-proxy
-    global: yes
+- name: SHELL; install k3s
+  shell:
+    cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --no-deploy traefik" sh
 
-- name: upgrade pip3
-  pip:
-    name: pip
-    state: latest
-    executable: pip3
+- name: SHELL; install helm
+  shell:
+    cmd: curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
 
-- name: install the REMOTE_USER authenticator
-  git:
-    repo: https://github.com/cwaldbieser/jhub_remote_user_authenticator.git
-    dest: /opt/jhub_remote_user_authenticator
-
-- name: install jupyter, jupyterhub, and other pip packages (as necessary)
-  pip:
-    name: "{{ item }}"
-    state: latest
-    executable: pip3
-  with_items:
-    - notebook
-    - jupyterhub
-    - dockerspawner
-    - /opt/jhub_remote_user_authenticator
-
-###
-# This is for apache
-###
-- name: execute apache specific tasks, varies by distro
-  include: "{{ ansible_distribution }}-apache.yml"
-
-###
-# This is to initialize docker
-###
-
-- name: docker pull the jupyterhub image
-  command: "docker pull {{ jupyterhub_docker_image }}"
-# note: this did not work reliably given this error: https://github.com/ansible/ansible/issues/20492
-#  docker:
-#    image: "{{ jupyterhub_docker_image }}"
-#    state: present
-#    pull: missing
-
-###
-# This is for jupyterhub configuration
-###
-- name: make/verify the jupyterhub system config directory
-  file:
-    path: "{{ jupyterhub_system_config }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-    
-- name: copy over the jupyterhub config
+- name: TEMPLATE; config.yaml
   template:
-    src: jupyterhub_config.py.j2
-    dest: "{{ jupyterhub_system_config }}/jupyterhub_config.py"
-    owner: root
-    group: root
-    mode: 0644
+    src: config.yaml.j2
+    dest: config.yaml
 
-###
-# This is for the jupyterhub systemd service
-###
-- name: install the systemd jupyterhub service
-  template:
-    src: jupyterhub.service.j2
-    dest: /lib/systemd/system/jupyterhub.service
-    owner: root
-    group: root
-    mode: 0644
+- name: SHELL; Add jupyterhub chart repo
+  shell:
+    cmd: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/ ; helm repo update
 
-- name: enable the service
-  systemd:
-    name: jupyterhub
-    enabled: yes
-    state: started
+- name: SHELL; Upgrade helm chart
+  shell:
+    cmd: helm --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --cleanup-on-fail --install jupyterhelm jupyterhub/jupyterhub --namespace {{ namespace }} --create-namespace --values config.yaml --timeout 10m
+  async: 600
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
-- name: force restart of jupyterhub
-  systemd:
-    name: jupyterhub
-    state: restarted
+- name: SHELL; set namespace context
+  shell:
+    cmd: kubectl config set-context $(kubectl config current-context) --namespace {{ namespace }}
