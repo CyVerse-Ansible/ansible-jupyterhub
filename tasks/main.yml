@@ -2,23 +2,25 @@
 # This task file requires kubernetes.core. Install with:
 # ansible-galaxy collection install kubernetes.core
 
-- name: FAIL; check github auth
+- name: FAIL; check oauth2 variables when an oauth2 provider is selected
   fail:
-    msg: "auth classs is set to dummy but DUMMY_PASS is not defined"
-  when: AUTH_CLASS == "github" and (OAUTH2_CLIENT_ID is not defined or OAUTH2_CLIENT_SECRET is not defined)
+    msg: "Auth class = {{ JH_AUTH_CLASS }} but one of JH_OAUTH2_CLIENT_ID, JH_OAUTH2_CLIENT_SECRET, or JH_OAUTH2_CALLBACK_URL is not defined "
+  when: JH_AUTH_CLASS == "github" and (JH_OAUTH2_CLIENT_ID is not defined or JH_OAUTH2_CLIENT_ID == "" or JH_OAUTH2_CLIENT_SECRET is not defined or JH_OAUTH2_CLIENT_SECRET == "" or JH_OAUTH2_CALLBACK_URL is not defined or JH_OAUTH2_CALLBACK_URL is not defined == "")
 
-- name: FAIL; check dummy pass
+- name: FAIL; check dummy password
   fail:
-    msg: "auth classs is set to dummy but DUMMY_PASS is not defined"
-  when: AUTH_CLASS == "dummy" and DUMMY_PASS is not defined
+    msg: "JH_AUTH_CLASS is set to dummy but JH_DUMMY_PASS is not defined"
+  when: JH_AUTH_CLASS == "dummy" and JH_DUMMY_PASS is not defined
 
-#- name: SHELL; install k3s
-#  shell:
-#    cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --no-deploy traefik" sh
+- name: SHELL; locate kubectl binary
+  shell: command -v kubectl
+  register: kubectl_found
+  ignore_errors: yes
 
-- name: SHELL; install helm
-  shell:
-    cmd: curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
+- name: FAIL; check if kubectl binary is not found
+  fail:
+    msg: "This role requires kubectl"
+  when: kubectl_found is failed
 
 - name: TEMPLATE; config.yaml
   template:

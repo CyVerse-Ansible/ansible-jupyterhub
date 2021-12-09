@@ -1,2 +1,2 @@
-namespace: kube-jup
-AUTH_CLASS: none
+JH_NAMESPACE: kube-jupyterhub
+JH_AUTH_CLASS: none

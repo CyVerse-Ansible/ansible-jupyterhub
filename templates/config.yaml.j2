@@ -11,23 +11,16 @@
 # Google is not currently supported
 hub:
   config:
-{% if AUTH_CLASS != "none" %}
-    Authenticator:
-      auto_login: true
-{% endif %}
-{% if AUTH_CLASS == "github" %}
-    GitHubOAuthenticator:
-      client_id: {{ OAUTH2_CLIENT_ID }}
-      client_secret: {{ OAUTH2_CLIENT_SECRET }}
-      oauth_callback_url: {{ OAUTH2_CALLBACK_URL }}
-{% elif AUTH_CLASS == "dummy" %}
-    DummyAuthenticator:
-      password: {{ DUMMY_PASS }}
-{% else %}
-    PamAuthenticator:
-      auto_login: true
-{% endif %}
-{% if AUTH_CLASS != "none" %}
     JupyterHub:
-      authenticator_class: {{ AUTH_CLASS }}
+      authenticator_class: {{ JH_AUTH_CLASS }}
+{% if JH_AUTH_CLASS == "github" %}
+    GitHubOAuthenticator:
+      client_id: {{ JH_OAUTH2_CLIENT_ID }}
+      client_secret: {{ JH_OAUTH2_CLIENT_SECRET }}
+      oauth_callback_url: {{ JH_OAUTH2_CALLBACK_URL }}
+{% elif JH_AUTH_CLASS == "dummy" %}
+    DummyAuthenticator:
+      password: {{ JH_DUMMY_PASS }}
+{% else %}
 {% endif %}
+
