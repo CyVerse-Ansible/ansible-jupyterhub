@@ -1,5 +1,2 @@
 namespace: kube-jupyterhub
 AUTH_CLASS: none
-OAUTH2_CLIENT_ID: 4796cf6a0514ade9fc94
-OAUTH2_CLIENT_SECRET: 5907adea090c674bb9f96dcdf6d3e34c62edad0d
-OAUTH2_callback_url: http://10.0.2.15
