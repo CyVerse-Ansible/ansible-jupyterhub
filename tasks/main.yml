@@ -12,9 +12,9 @@
     msg: "auth classs is set to dummy but DUMMY_PASS is not defined"
   when: AUTH_CLASS == "dummy" and DUMMY_PASS is not defined
 
-- name: SHELL; install k3s
-  shell:
-    cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --no-deploy traefik" sh
+#- name: SHELL; install k3s
+#  shell:
+#    cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --no-deploy traefik" sh
 
 - name: SHELL; install helm
   shell:
