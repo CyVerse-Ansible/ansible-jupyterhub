@@ -19,7 +19,7 @@ hub:
     GitHubOAuthenticator:
       client_id: {{ OAUTH2_CLIENT_ID }}
       client_secret: {{ OAUTH2_CLIENT_SECRET }}
-      oauth_callback_url: {{ OAUTH2_callback_url }}
+      oauth_callback_url: {{ OAUTH2_CALLBACK_URL }}
 {% elif AUTH_CLASS == "dummy" %}
     DummyAuthenticator:
       password: {{ DUMMY_PASS }}
