@@ -1,2 +1,2 @@
-namespace: kube-jupyterhub
+namespace: kube-jup
 AUTH_CLASS: none

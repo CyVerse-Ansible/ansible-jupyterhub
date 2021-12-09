@@ -3,8 +3,8 @@ ansible jupyterhub
 
 This role will install jupyterhub with CyVerse authentication and docker for jupyter notebooks.
 
-Currently, Ubuntu 20 is tested and working.
-In theory it should work on all platforms centos7+ and ubuntu18+.
+Currently, Ubuntu 20 and 18 is tested and working.
+It currently does not work properly on redhat systems, we are working on it.
 
 Requirements
 ------------
