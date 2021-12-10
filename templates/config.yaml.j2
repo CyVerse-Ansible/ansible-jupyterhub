@@ -12,7 +12,9 @@
 hub:
   config:
     JupyterHub:
+{% if JH_AUTH_CLASS != "default" %}
       authenticator_class: {{ JH_AUTH_CLASS }}
+{% endif %}
 {% if JH_AUTH_CLASS == "github" %}
     GitHubOAuthenticator:
       client_id: {{ JH_OAUTH2_CLIENT_ID }}

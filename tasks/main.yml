@@ -1,6 +1,4 @@
 ---
-# This task file requires kubernetes.core. Install with:
-# ansible-galaxy collection install kubernetes.core
 
 - name: FAIL; check oauth2 variables when an oauth2 provider is selected
   fail:
@@ -33,14 +31,15 @@
     set_fact:
       jh_k3s_kubeconfig: "KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
 
-  - name: FILE; create $HOME/.kube directory if necessary
+  - name: FILE; create {{ansible_env.HOME}}/.kube directory if necessary
     file:
-      path: $HOME/.kube
+      path: "{{ansible_env.HOME}}/.kube"
+      state: directory
 
-  - name: FILE; if k3s, link the k3s.yaml into $HOME/.kube/config
+  - name: FILE; if k3s, link the k3s.yaml into {{ansible_env.HOME}}/.kube/config
     file:
       src: /etc/rancher/k3s/k3s.yaml
-      dest: $HOME/.kube/config
+      dest: "{{ansible_env.HOME}}/.kube/config"
       state: link
   when: k3s_found is success
 
@@ -54,11 +53,17 @@
     cmd: curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
   when: helm_found is failed
 
+# - name: SNAP; install helm
+#   snap:
+#     name: helm
+#     classic: yes
+#   when: ansible_distribution == "Ubuntu"
+
 - name: SHELL; Add jupyterhub chart repo
   shell:
     cmd: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/ ; helm repo update
 
 - name: SHELL; install/Upgrade helm chart
   shell:
-   cmd: "{{ jh_k3s_kubeconfig | default('') }} helm upgrade --cleanup-on-fail --install jupyterhub jupyterhub/jupyterhub --namespace {{ JH_NAMESPACE }} --create-namespace --values {{ JH_CONFIG_DIR }}/config.yaml --timeout 10m"
+   cmd: "{{ jh_k3s_kubeconfig | default('') }} helm upgrade --cleanup-on-fail --install jupyterhub jupyterhub/jupyterhub --version={{ JH_CHART_VERSION }} --namespace {{ JH_NAMESPACE }} --create-namespace --values {{ JH_CONFIG_DIR }}/config.yaml --timeout 10m"
   async: 600
