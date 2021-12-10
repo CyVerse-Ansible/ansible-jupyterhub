@@ -12,32 +12,53 @@
     msg: "JH_AUTH_CLASS is set to dummy but JH_DUMMY_PASS is not defined"
   when: JH_AUTH_CLASS == "dummy" and JH_DUMMY_PASS is not defined
 
-- name: SHELL; locate kubectl binary
-  shell: command -v kubectl
-  register: kubectl_found
-  ignore_errors: yes
+- name: FILE; mkdir {{ JH_CONFIG_DIR }}
+  file:
+    path: "{{ JH_CONFIG_DIR }}"
+    state: directory
+    mode: 0755
 
-- name: FAIL; check if kubectl binary is not found
-  fail:
-    msg: "This role requires kubectl"
-  when: kubectl_found is failed
-
-- name: TEMPLATE; config.yaml
+- name: TEMPLATE; install config.yaml to {{ JH_CONFIG_DIR }}
   template:
     src: config.yaml.j2
-    dest: config.yaml
+    dest: "{{ JH_CONFIG_DIR }}/config.yaml"
+
+- name: SHELL; locate k3s binary
+  shell: command -v k3s
+  register: k3s_found
+  ignore_errors: yes
+
+- block:
+  - name: SET_FACT; set jh_k3s_kubeconfig if k3s is found on host
+    set_fact:
+      jh_k3s_kubeconfig: "KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
+
+  - name: FILE; create $HOME/.kube directory if necessary
+    file:
+      path: $HOME/.kube
+
+  - name: FILE; if k3s, link the k3s.yaml into $HOME/.kube/config
+    file:
+      src: /etc/rancher/k3s/k3s.yaml
+      dest: $HOME/.kube/config
+      state: link
+  when: k3s_found is success
+
+- name: SHELL; locate helm binary
+  shell: command -v helm
+  register: helm_found
+  ignore_errors: yes
+
+- name: SHELL; install helm, if not found
+  shell:
+    cmd: curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
+  when: helm_found is failed
 
 - name: SHELL; Add jupyterhub chart repo
   shell:
     cmd: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/ ; helm repo update
 
-- name: SHELL; Upgrade helm chart
+- name: SHELL; install/Upgrade helm chart
   shell:
-    cmd: helm --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade --cleanup-on-fail --install jupyterhelm jupyterhub/jupyterhub --namespace {{ namespace }} --create-namespace --values config.yaml --timeout 10m
+   cmd: "{{ jh_k3s_kubeconfig | default('') }} helm upgrade --cleanup-on-fail --install jupyterhub jupyterhub/jupyterhub --namespace {{ JH_NAMESPACE }} --create-namespace --values {{ JH_CONFIG_DIR }}/config.yaml --timeout 10m"
   async: 600
-  environment:
-    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-
-- name: SHELL; set namespace context
-  shell:
-    cmd: kubectl config set-context $(kubectl config current-context) --namespace {{ namespace }}

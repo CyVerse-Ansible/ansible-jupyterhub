@@ -1,2 +1,6 @@
 JH_NAMESPACE: kube-jupyterhub
 JH_AUTH_CLASS: none
+JH_CONFIG_DIR: "/opt/jupyterhub"
+JH_SINGLEUSER_IMAGE: "jupyter/datascience-notebook"
+JH_SINGLEUSER_IMAGE_TAG: "latest"
+JH_SINGLEUSER_DEFAULT_URL: "/lab"

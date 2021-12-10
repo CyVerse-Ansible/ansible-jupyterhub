@@ -23,4 +23,8 @@ hub:
       password: {{ JH_DUMMY_PASS }}
 {% else %}
 {% endif %}
-
+singleuser:
+  defaultUrl: "{{ JH_SINGLEUSER_DEFAULT_URL }}"
+  image:
+    name: {{ JH_SINGLEUSER_IMAGE }}
+    tag:  {{ JH_SINGLEUSER_IMAGE_TAG }}
