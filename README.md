@@ -1,7 +1,7 @@
 ansible jupyterhub
 ==================
 
-This role will install jupyterhub with CyVerse authentication and docker for jupyter notebooks.
+This role will install zero-to-jupyterhub.
 
 Currently, Ubuntu 20 and 18 is tested and working.
 It currently does not work properly on redhat systems, we are working on it.
@@ -14,16 +14,19 @@ This requires docker and k3s.
 Role Variables
 --------------
 
-* AUTH_CLASS, can be set to github dummy or left blank witch will use pam authentication.
-* DUMMY_PASS, a password for using dummy class. If not set dummy auth cannot be used.
-* OAUTH2_CLIENT_ID, a client id for used for the following auths: github.
-* OAUTH2_CLIENT_SECRET, a client secret for used for the following auths: github.
-* OAUTH2_CALLBACK_URL, a callback url for used for the following auths: github.
+* JH_AUTH_CLASS, can be set to github dummy or left blank witch will use pam authentication.
+* JH_DUMMY_PASS, a password for using dummy class. If not set dummy auth cannot be used.
+* JH_OAUTH2_CLIENT_ID, a client id for used for the following auths: github.
+* JH_OAUTH2_CLIENT_SECRET, a client secret for used for the following auths: github.
+* JH_OAUTH2_CALLBACK_URL, a callback url for used for the following auths: github.
+* JH_SINGLEUSER_IMAGE, the image to use for jupyter; default is jupyter/datascience-notebook
+* JH_SINGLEUSER_IMAGE_TAG, the image tag to use for jupyter; default is latest
+* JH_SINGLEUSER_DEFAULT_URL, the default url for jupyter; default is "/lab"
 
 Dependencies
 ------------
 
-* Any role that installed docker ce and ansible_k3s form cyverse or any equivalent.
+* This role requires kubernetes, generally is installed with k3s. If helm is not installed, then it will install it.
 
 Example Playbook
 ----------------
