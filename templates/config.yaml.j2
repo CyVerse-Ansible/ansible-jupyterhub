@@ -26,6 +26,7 @@ hub:
 {% for user in JH_ALLOWED_USERS %}
        - {{ user }}
 {% endfor %}
+{% endif %}
 {% if JH_AUTH_CLASS == "github" %}
     GitHubOAuthenticator:
       client_id: {{ JH_OAUTH2_CLIENT_ID }}
