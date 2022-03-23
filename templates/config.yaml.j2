@@ -15,6 +15,7 @@ hub:
 {% if JH_AUTH_CLASS != "default" %}
       authenticator_class: {{ JH_AUTH_CLASS }}
 {% endif %}
+    Authenticator:
 {% if JH_ADMINS is defined %}
        admin_users:
 {% for user in JH_ADMINS %}
