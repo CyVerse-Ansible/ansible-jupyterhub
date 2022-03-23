@@ -14,7 +14,7 @@ This requires docker and k3s.
 Role Variables
 --------------
 
-* JH_AUTH_CLASS, can be set to github dummy or left blank witch will use pam authentication.
+* JH_AUTH_CLASS, can be set to `github`, `dummy` or left blank witch will use pam authentication.
 * JH_DUMMY_PASS, a password for using dummy class. If not set dummy auth cannot be used.
 * JH_OAUTH2_CLIENT_ID, a client id for used for the following auths: github.
 * JH_OAUTH2_CLIENT_SECRET, a client secret for used for the following auths: github.
