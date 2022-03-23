@@ -15,6 +15,17 @@ hub:
 {% if JH_AUTH_CLASS != "default" %}
       authenticator_class: {{ JH_AUTH_CLASS }}
 {% endif %}
+{% if JH_ADMINS is defined %}
+       admin_users:
+{% for user in JH_ADMINS %}
+       - {{ user }}
+{% endfor %}
+{% endif %}
+{% if JH_ALLOWED_USERS is defined %}
+       allowed_users:
+{% for user in JH_ALLOWED_USERS %}
+       - {{ user }}
+{% endfor %}
 {% if JH_AUTH_CLASS == "github" %}
     GitHubOAuthenticator:
       client_id: {{ JH_OAUTH2_CLIENT_ID }}
