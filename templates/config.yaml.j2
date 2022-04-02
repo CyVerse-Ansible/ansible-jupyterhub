@@ -43,3 +43,11 @@ singleuser:
   image:
     name: {{ JH_SINGLEUSER_IMAGE }}
     tag:  {{ JH_SINGLEUSER_IMAGE_TAG }}
+{% if JH_SINGLEUSER_GPU_ENABLE is defined and JH_SINGLEUSER_GPU_ENABLE|bool %}
+  profileList:
+    - display_name: "GPU Server"
+      description: "Spawns a notebook server with access to a GPU"
+      kubespawner_override:
+        extra_resource_limits:
+          nvidia.com/gpu: "1"
+{% endif %}

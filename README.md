@@ -22,6 +22,7 @@ Role Variables
 * JH_SINGLEUSER_IMAGE, the image to use for jupyter; default is jupyter/datascience-notebook
 * JH_SINGLEUSER_IMAGE_TAG, the image tag to use for jupyter; default is latest
 * JH_SINGLEUSER_DEFAULT_URL, the default url for jupyter; default is "/lab"
+* JH_SINGLEUSER_GPU_ENABLE, default is no gpu
 
 * JH_ALLOWED_USERS, list of users allowed to login to app
 * JH_ADMINS, list of admin users
