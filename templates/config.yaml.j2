@@ -9,6 +9,10 @@
 # Available chart versions: https://jupyterhub.github.io/helm-chart/
 #
 # Google is not currently supported
+#
+# If you update this file directly and want to redeploy via helm:
+#
+#    helm upgrade -f /opt/jupyterhub/config.yaml jupyterhub jupyterhub/jupyterhub
 hub:
   config:
     JupyterHub:
