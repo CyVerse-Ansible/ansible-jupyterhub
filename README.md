@@ -27,6 +27,11 @@ Role Variables
 * JH_ALLOWED_USERS, list of users allowed to login to app
 * JH_ADMINS, list of admin users
 
+* JH_SHARED_STORAGE_ENABLE, set to true if enabling storage
+* JH_SHARED_STORAGE_PV_NAME, set to the persistent volume name
+* JH_SHARED_STORAGE_PVC_NAME, set to the persistent volume claim name
+* JH_SHARED_STORAGE_MOUNT_DIR, set to the mount directory within container, default = /home/shared
+
 Dependencies
 ------------
 

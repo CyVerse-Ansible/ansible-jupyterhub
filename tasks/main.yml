@@ -53,12 +53,6 @@
     cmd: curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
   when: helm_found is failed
 
-# - name: SNAP; install helm
-#   snap:
-#     name: helm
-#     classic: yes
-#   when: ansible_distribution == "Ubuntu"
-
 - name: SHELL; Add jupyterhub chart repo
   shell:
     cmd: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/ ; helm repo update
