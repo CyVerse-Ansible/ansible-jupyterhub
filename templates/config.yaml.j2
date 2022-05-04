@@ -44,6 +44,7 @@ hub:
 {% endif %}
 singleuser:
   defaultUrl: "{{ JH_SINGLEUSER_DEFAULT_URL }}"
+  startTimeout: {{ JH_SINGLEUSER_START_TIMEOUT }}
   image:
     name: {{ JH_SINGLEUSER_IMAGE }}
     tag:  {{ JH_SINGLEUSER_IMAGE_TAG }}
