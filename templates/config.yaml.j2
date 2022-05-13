@@ -16,6 +16,15 @@
 hub:
   config:
     JupyterHub:
+# this could be useful later for forcing matching to specific nodes
+#      scheduling:
+#        corePods:
+#          nodeAffinity:
+#            # matchNodePurpose valid options:
+#            # - ignore
+#            # - prefer (the default)
+#            # - require
+#            matchNodePurpose: require
 {% if JH_AUTH_CLASS != "default" %}
       authenticator_class: {{ JH_AUTH_CLASS }}
 {% endif %}
