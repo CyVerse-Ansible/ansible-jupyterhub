@@ -42,6 +42,9 @@ hub:
       password: {{ JH_DUMMY_PASS }}
 {% else %}
 {% endif %}
+  extraConfig:
+    cyverse_config.py: |
+      c.Spawner.http_timeout  = 60
 singleuser:
   defaultUrl: "{{ JH_SINGLEUSER_DEFAULT_URL }}"
   startTimeout: {{ JH_SINGLEUSER_START_TIMEOUT }}

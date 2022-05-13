@@ -24,7 +24,7 @@
 - name: SHELL; locate k3s binary
   shell: command -v k3s
   register: k3s_found
-  ignore_errors: yes
+  ignore_errors: true
 
 - block:
   - name: SET_FACT; set jh_k3s_kubeconfig if k3s is found on host
@@ -43,10 +43,14 @@
       state: link
   when: k3s_found is success
 
+# for now, we'll assign the master nodes as the one with all the jupyterhub core components
+- name: SHELL; kubectl label nodes <name-name> hub.jupyter.org/node-purpose=core
+  shell: "kubectl label nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/node-purpose=core"
+
 - name: SHELL; locate helm binary
   shell: command -v helm
   register: helm_found
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: SHELL; install helm, if not found
   shell:
