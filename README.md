@@ -42,7 +42,11 @@ Role Variables
 * JH_RESOURCES_REQUEST_MEMORY, if set this is the memory setting for the hub container, 200Mi - 4Gi
 
 * JH_INGRESS_ENABLED, if set this will enable ingress
+* JH_INGRESS_CLASS, default is `nginx`
+* JH_INGRESS_BODY_SIZE, will set the maximum proxy body size. Default is "4096m"
 * JH_INGRESS_HOSTNAME, if set will set the hostname for ingress
+
+* JH_DB_PVC_STORAGE_CLASS_NAME, if set will be the storageclass name
 
 Dependencies
 ------------

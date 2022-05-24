@@ -24,6 +24,11 @@ hub:
       memory: {{ JH_RESOURCES_REQUEST_MEMORY }}
 {% endif %}
 {% endif %}
+{% if JH_DB_PVC_STORAGE_CLASS_NAME is defined %}
+  db:
+    pvc:
+      storageClassName: "{{ JH_DB_PVC_STORAGE_CLASS_NAME }}"
+{% endif %}
   config:
     JupyterHub:
 # this could be useful later for forcing matching to specific nodes
@@ -118,6 +123,11 @@ proxy:
 {% if JH_INGRESS_ENABLED is defined and JH_INGRESS_ENABLED|bool %}
 ingress:
   enabled: true
+  annotations:
+{% if JH_INGRESS_HOSTNAME == "nginx" %}
+    nginx.ingress.kubernetes.io/proxy-body-size: "{{ JH_INGRESS_BODY_SIZE }}"
+{% endif %}
+    kubernetes.io/ingress.class: "{{ JH_INGRESS_CLASS }}"
 {% if JH_INGRESS_HOSTNAME is defined %}
   hosts: 
   - {{ JH_INGRESS_HOSTNAME }}
