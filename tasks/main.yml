@@ -44,14 +44,14 @@
   when: k3s_found is success
 
 # for now, we'll assign the master nodes as the one with all the jupyterhub core components
-- name: SHELL; kubectl label nodes <name-name> hub.jupyter.org/node-purpose=core
+- name: SHELL; kubectl label master nodes <name-name> hub.jupyter.org/node-purpose=core
   shell: "kubectl label nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/node-purpose=core"
 
 - block:
-  - name: SHELL; kubectl label nodes <name-name> hub.jupyter.org/dedicated=user:NoSchedule
-    shell: "kubectl label nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/dedicated=user:NoSchedule"
+  - name: SHELL; kubectl label master nodes <name-name> hub.jupyter.org/dedicated=user:NoSchedule
+    shell: "kubectl taint nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/dedicated=user:NoSchedule"
 
-  - name: SHELL; kubectl label nodes <name-name> hub.jupyter.org/dedicated=user:NoSchedule
+  - name: SHELL; kubectl label worker nodes <name-name> hub.jupyter.org/node-purpose=user
     shell: "kubectl label nodes --overwrite --selector='!node-role.kubernetes.io/master' hub.jupyter.org/node-purpose=user"
   when: JH_SINGLEUSER_EXCLUDE_MASTER|bool
 
