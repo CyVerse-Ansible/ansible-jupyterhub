@@ -19,6 +19,8 @@ Role Variables
 * JH_OAUTH2_CLIENT_ID, a client id for used for the following auths: github.
 * JH_OAUTH2_CLIENT_SECRET, a client secret for used for the following auths: github.
 * JH_OAUTH2_CALLBACK_URL, a callback url for used for the following auths: github.
+* JH_SINGLEUSER_EXCLUDE_MASTER, if true will prevent single user notebooks from running on master node
+
 * JH_SINGLEUSER_IMAGE, the image to use for jupyter; default is jupyter/datascience-notebook
 * JH_SINGLEUSER_IMAGE_TAG, the image tag to use for jupyter; default is latest
 * JH_SINGLEUSER_DEFAULT_URL, the default url for jupyter; default is "/lab"
