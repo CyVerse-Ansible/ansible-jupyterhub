@@ -124,7 +124,7 @@ proxy:
 ingress:
   enabled: true
   annotations:
-{% if JH_INGRESS_HOSTNAME == "nginx" %}
+{% if JH_INGRESS_CLASS == "nginx" %}
     nginx.ingress.kubernetes.io/proxy-body-size: "{{ JH_INGRESS_BODY_SIZE }}"
 {% endif %}
     kubernetes.io/ingress.class: "{{ JH_INGRESS_CLASS }}"
