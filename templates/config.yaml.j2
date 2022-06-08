@@ -74,7 +74,7 @@ singleuser:
   startTimeout: {{ JH_SINGLEUSER_START_TIMEOUT }}
   image:
     name: {{ JH_SINGLEUSER_IMAGE }}
-    tag:  {{ JH_SINGLEUSER_IMAGE_TAG }}
+    tag:  "{{ JH_SINGLEUSER_IMAGE_TAG | string }}"
   memory:
     guarantee: "{{ JH_SINGLEUSER_MEMORY_GUARANTEE }}"
 {% if JH_SINGLEUSER_MEMORY_LIMIT is defined %}
