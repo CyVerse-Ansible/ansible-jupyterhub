@@ -58,12 +58,12 @@ hub:
 {% endif %}
 {% if JH_AUTH_CLASS == "github" %}
     GitHubOAuthenticator:
-      client_id: {{ JH_OAUTH2_CLIENT_ID }}
-      client_secret: {{ JH_OAUTH2_CLIENT_SECRET }}
+      client_id: "{{ JH_OAUTH2_CLIENT_ID }}"
+      client_secret: "{{ JH_OAUTH2_CLIENT_SECRET }}"
       oauth_callback_url: {{ JH_OAUTH2_CALLBACK_URL }}
 {% elif JH_AUTH_CLASS == "dummy" %}
     DummyAuthenticator:
-      password: {{ JH_DUMMY_PASS }}
+      password: "{{ JH_DUMMY_PASS }}"
 {% else %}
 {% endif %}
   extraConfig:
@@ -88,11 +88,11 @@ singleuser:
 {% if JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool %}
   storage:
     extraVolumes:
-    - name: {{ JH_SHARED_STORAGE_PV_NAME }}
+    - name: "{{ JH_SHARED_STORAGE_PV_NAME }}"
       persistentVolumeClaim:
-        claimName: {{ JH_SHARED_STORAGE_PVC_NAME }}
+        claimName: "{{ JH_SHARED_STORAGE_PVC_NAME }}"
     extraVolumeMounts:
-    - name: {{ JH_SHARED_STORAGE_PV_NAME }}
+    - name: "{{ JH_SHARED_STORAGE_PV_NAME }}"
       mountPath: {{ JH_SHARED_STORAGE_MOUNT_DIR }}
 {% endif %}
 {% if JH_SINGLEUSER_GPU_ENABLE is defined and JH_SINGLEUSER_GPU_ENABLE|bool %}
