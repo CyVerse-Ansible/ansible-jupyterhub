@@ -133,3 +133,7 @@ ingress:
   - {{ JH_INGRESS_HOSTNAME }}
 {% endif %}
 {% endif %}
+
+prePuller:
+  hook:
+    enabled: {{ JH_PREPULL_IMAGES }}

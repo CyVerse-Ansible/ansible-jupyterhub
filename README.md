@@ -50,6 +50,8 @@ Role Variables
 
 * JH_DB_PVC_STORAGE_CLASS_NAME, if set will be the storageclass name
 
+* JH_PREPULL_IMAGES, if set the hub will prepull images to all nodes before its available. Set to false if the images are too large or too many nodes. default is true.
+
 Dependencies
 ------------
 
