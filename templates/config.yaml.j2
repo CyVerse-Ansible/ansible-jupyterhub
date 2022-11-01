@@ -9,25 +9,131 @@
 # Available chart versions: https://jupyterhub.github.io/helm-chart/
 #
 # Google is not currently supported
+#
+# If you update this file directly and want to redeploy via helm:
+#
+#    helm upgrade -f /opt/jupyterhub/config.yaml jupyterhub jupyterhub/jupyterhub
 hub:
+{% if JH_RESOURCES_REQUEST_CPU is defined or JH_RESOURCES_REQUEST_MEMORY is defined %}
+  resources:
+    requests:
+{% if JH_RESOURCES_REQUEST_CPU is defined %}
+      cpu: {{ JH_RESOURCES_REQUEST_CPU }}
+{% endif %}
+{% if JH_RESOURCES_REQUEST_MEMORY is defined %}
+      memory: {{ JH_RESOURCES_REQUEST_MEMORY }}
+{% endif %}
+{% endif %}
+{% if JH_DB_PVC_STORAGE_CLASS_NAME is defined %}
+  db:
+    pvc:
+      storageClassName: "{{ JH_DB_PVC_STORAGE_CLASS_NAME }}"
+{% endif %}
   config:
-{% if AUTH_CLASS != "none" %}
-    Authenticator:
-      auto_login: true
-{% endif %}
-{% if AUTH_CLASS == "github" %}
-    GitHubOAuthenticator:
-      client_id: {{ OAUTH2_CLIENT_ID }}
-      client_secret: {{ OAUTH2_CLIENT_SECRET }}
-      oauth_callback_url: {{ OAUTH2_CALLBACK_URL }}
-{% elif AUTH_CLASS == "dummy" %}
-    DummyAuthenticator:
-      password: {{ DUMMY_PASS }}
-{% else %}
-    PamAuthenticator:
-      auto_login: true
-{% endif %}
-{% if AUTH_CLASS != "none" %}
     JupyterHub:
-      authenticator_class: {{ AUTH_CLASS }}
+# this could be useful later for forcing matching to specific nodes
+#      scheduling:
+#        corePods:
+#          nodeAffinity:
+#            # matchNodePurpose valid options:
+#            # - ignore
+#            # - prefer (the default)
+#            # - require
+#            matchNodePurpose: require
+{% if JH_AUTH_CLASS != "default" %}
+      authenticator_class: {{ JH_AUTH_CLASS }}
 {% endif %}
+    Authenticator:
+{% if JH_ADMINS is defined %}
+       admin_users:
+{% for user in JH_ADMINS %}
+       - {{ user }}
+{% endfor %}
+{% endif %}
+{% if JH_ALLOWED_USERS is defined %}
+       allowed_users:
+{% for user in JH_ALLOWED_USERS %}
+       - {{ user }}
+{% endfor %}
+{% endif %}
+{% if JH_AUTH_CLASS == "github" %}
+    GitHubOAuthenticator:
+      client_id: "{{ JH_OAUTH2_CLIENT_ID }}"
+      client_secret: "{{ JH_OAUTH2_CLIENT_SECRET }}"
+      oauth_callback_url: {{ JH_OAUTH2_CALLBACK_URL }}
+{% elif JH_AUTH_CLASS == "dummy" %}
+    DummyAuthenticator:
+      password: "{{ JH_DUMMY_PASS }}"
+{% else %}
+{% endif %}
+  extraConfig:
+    cyverse_config.py: |
+      c.Spawner.http_timeout  = {{ JH_SINGLEUSER_HTTP_TIMEOUT }}
+singleuser:
+  defaultUrl: "{{ JH_SINGLEUSER_DEFAULT_URL }}"
+  startTimeout: {{ JH_SINGLEUSER_START_TIMEOUT }}
+  image:
+    name: {{ JH_SINGLEUSER_IMAGE }}
+    tag:  "{{ JH_SINGLEUSER_IMAGE_TAG | string }}"
+  memory:
+    guarantee: "{{ JH_SINGLEUSER_MEMORY_GUARANTEE }}"
+{% if JH_SINGLEUSER_MEMORY_LIMIT is defined %}
+    limit: "{{ JH_SINGLEUSER_MEMORY_LIMIT }}"
+{% endif %}
+  cpu:
+    guarantee: {{ JH_SINGLEUSER_CPU_GUARANTEE }}
+{% if JH_SINGLEUSER_CPU_LIMIT is defined %}
+    limit: {{ JH_SINGLEUSER_CPU_LIMIT }}
+{% endif %}
+{% if JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool %}
+  storage:
+    extraVolumes:
+    - name: "{{ JH_SHARED_STORAGE_PV_NAME }}"
+      persistentVolumeClaim:
+        claimName: "{{ JH_SHARED_STORAGE_PVC_NAME }}"
+    extraVolumeMounts:
+    - name: "{{ JH_SHARED_STORAGE_PV_NAME }}"
+      mountPath: {{ JH_SHARED_STORAGE_MOUNT_DIR }}
+{% endif %}
+{% if JH_SINGLEUSER_GPU_ENABLE is defined and JH_SINGLEUSER_GPU_ENABLE|bool %}
+  profileList:
+    - display_name: "GPU Server"
+      description: "Spawns a notebook server with access to a GPU"
+      kubespawner_override:
+        extra_resource_limits:
+          nvidia.com/gpu: "1"
+{% endif %}
+
+# uncomment only if debugging container issues
+cull:
+  enabled: false
+proxy:
+{% if JH_INGRESS_ENABLED is defined and JH_INGRESS_ENABLED|bool %}
+  service:
+    type: ClusterIP
+{% endif %}
+  chp:
+    resources:
+      requests:
+        # 0m - 1000m
+        cpu: 1000m
+        # 100Mi - 600Mi
+        memory: 500Mi
+
+{% if JH_INGRESS_ENABLED is defined and JH_INGRESS_ENABLED|bool %}
+ingress:
+  enabled: true
+  annotations:
+{% if JH_INGRESS_CLASS == "nginx" %}
+    nginx.ingress.kubernetes.io/proxy-body-size: "{{ JH_INGRESS_BODY_SIZE }}"
+{% endif %}
+    kubernetes.io/ingress.class: "{{ JH_INGRESS_CLASS }}"
+{% if JH_INGRESS_HOSTNAME is defined %}
+  hosts: 
+  - {{ JH_INGRESS_HOSTNAME }}
+{% endif %}
+{% endif %}
+
+prePuller:
+  hook:
+    enabled: {{ JH_PREPULL_IMAGES }}
