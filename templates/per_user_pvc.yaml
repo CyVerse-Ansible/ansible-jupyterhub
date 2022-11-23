@@ -1,0 +1,7 @@
+jupyterhub:
+  custom:
+    singleuser:
+      extraPVCs:
+        - name: postgres-{username}
+          class: standard
+          capacity: 1Gi
