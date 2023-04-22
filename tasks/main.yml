@@ -23,9 +23,8 @@
     mode: 0600
 
 - name: SHELL; locate k3s binary
-  ansible.builtin.command: command -v k3s
-  args:
-    shell: /bin/bash
+  ansible.builtin.command:
+    cmd: which k3s
   register: k3s_found
   ignore_errors: true
 
@@ -71,9 +70,8 @@
       ansible.builtin.command: "kubectl taint nodes --overwrite --selector='!node-role.kubernetes.io/master' hub.jupyter.org/dedicated=user:NoSchedule"
 
 - name: SHELL; locate helm binary
-  ansible.builtin.command: command -v helm
-  args:
-    shell: /bin/bash
+  ansible.builtin.command:
+    cmd: which helm
   register: helm_found
   ignore_errors: true
 
