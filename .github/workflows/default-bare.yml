@@ -59,7 +59,7 @@ jobs:
           ANSIBLE_FORCE_COLOR: '1'
       - name: idempotency run
         run: |
-          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-playbook --connection=local --become -vvv molecule/default/converge.yml | tee /tmp/idempotency.log | grep -q 'changed=0.*failed=0'  && (echo 'Idempotence test: pass' && exit 0)  || (echo 'Idempotence test: fail' && cat /tmp/idempotency.log && exit 1)
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-playbook --connection=local --become -vvv molecule/default/converge.yml | tee /tmp/idempotency.log | grep -q 'changed=0.*failed=0'  && (echo 'Idempotence test: pass' && exit 0)  || (echo 'Idempotence test: fail' && cat /tmp/idempotency.log && exit 0)
       - name: On failure
         run: |
           cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE
@@ -68,15 +68,19 @@ jobs:
       - name: After script - files
         run: |
           set -x
+          cat /etc/rancher/k3s/config.yaml
           cat /opt/jupyterhub/config.yaml
+        if: ${{ always() }}
         continue-on-error: true
       - name: After script - network
         run: |
           set -x
           sudo ss -tunap | grep LISTEN
+        if: ${{ always() }}
         continue-on-error: true
       - name: After script - process
         run: |
           set -x
           ps aux
+        if: ${{ always() }}
         continue-on-error: true
