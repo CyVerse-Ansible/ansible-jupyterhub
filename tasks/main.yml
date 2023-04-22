@@ -20,58 +20,64 @@
   ansible.builtin.template:
     src: config.yaml.j2
     dest: "{{ JH_CONFIG_DIR }}/config.yaml"
+    mode: 0600
 
 - name: SHELL; locate k3s binary
-  ansible.builtin.shell: command -v k3s
+  ansible.builtin.command: command -v k3s
   register: k3s_found
   ignore_errors: true
 
-- block:
+- name: K3s present
+  when: k3s_found is success
+  block:
     - name: SET_FACT; set jh_k3s_kubeconfig if k3s is found on host
       ansible.builtin.set_fact:
         jh_k3s_kubeconfig: "KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
 
-    - name: FILE; create {{ansible_env.HOME}}/.kube directory if necessary
+    - name: FILE; create HOME .kube directory if necessary
       ansible.builtin.file:
-        path: "{{ansible_env.HOME}}/.kube"
+        path: "{{ ansible_env.HOME }}/.kube"
         state: directory
+        mode: 0600
 
-    - name: FILE; if k3s, link the k3s.yaml into {{ansible_env.HOME}}/.kube/config
+    - name: FILE; if k3s, link the k3s.yaml into HOME/.kube/config
       ansible.builtin.file:
         src: /etc/rancher/k3s/k3s.yaml
-        dest: "{{ansible_env.HOME}}/.kube/config"
+        dest: "{{ ansible_env.HOME }}/.kube/config"
         state: link
-  when: k3s_found is success
 
 # for now, we'll assign the master nodes as the one with all the jupyterhub core components
 - name: SHELL; kubectl label master nodes <name-name> hub.jupyter.org/node-purpose=core
-  ansible.builtin.shell: "kubectl label nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/node-purpose=core"
+  ansible.builtin.command: "kubectl label nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/node-purpose=core"
 
 # and we'll assign worker nodes as one with all the jupyter notebooks
 - name: SHELL; kubectl label worker nodes <name-name> hub.jupyter.org/node-purpose=user
-  ansible.builtin.shell: "kubectl label nodes --overwrite --selector='!node-role.kubernetes.io/master' hub.jupyter.org/node-purpose=user"
+  ansible.builtin.command: "kubectl label nodes --overwrite --selector='!node-role.kubernetes.io/master' hub.jupyter.org/node-purpose=user"
 
-- block:
+- name: Single User Exclude Master
+  when: JH_SINGLEUSER_EXCLUDE_MASTER|bool
+  block:
     # - name: SHELL; kubectl label master nodes <name-name> hub.jupyter.org/dedicated=user:NoSchedule
     #   shell: "kubectl taint nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/dedicated=user:NoSchedule"
 
     # - name: SHELL; kubectl label worker nodes <name-name> hub.jupyter.org/dedicated=user:NoSchedule
     #   shell: "kubectl taint nodes --overwrite --selector='!node-role.kubernetes.io/master' hub.jupyter.org/dedicated=core:NoSchedule"
     - name: SHELL; kubectl label master nodes <name-name> hub.jupyter.org/dedicated=core:NoSchedule
-      ansible.builtin.shell: "kubectl taint nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/dedicated=core:NoSchedule"
+      ansible.builtin.command: "kubectl taint nodes --overwrite --selector='node-role.kubernetes.io/master=true' hub.jupyter.org/dedicated=core:NoSchedule"
 
     - name: SHELL; kubectl label worker nodes <name-name> hub.jupyter.org/dedicated=user:NoSchedule
-      ansible.builtin.shell: "kubectl taint nodes --overwrite --selector='!node-role.kubernetes.io/master' hub.jupyter.org/dedicated=user:NoSchedule"
-  when: JH_SINGLEUSER_EXCLUDE_MASTER|bool
+      ansible.builtin.command: "kubectl taint nodes --overwrite --selector='!node-role.kubernetes.io/master' hub.jupyter.org/dedicated=user:NoSchedule"
 
 - name: SHELL; locate helm binary
-  ansible.builtin.shell: command -v helm
+  ansible.builtin.command: command -v helm
   register: helm_found
   ignore_errors: true
 
 - name: SHELL; install helm, if not found
   ansible.builtin.shell:
-    cmd: curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
+    cmd: |
+      set -o pipefail
+      curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
   when: helm_found is failed
 
 - name: SHELL; Add jupyterhub chart repo
@@ -79,6 +85,6 @@
     cmd: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/ ; helm repo update
 
 - name: SHELL; install/Upgrade helm chart
-  ansible.builtin.shell:
+  ansible.builtin.command:
     cmd: "{{ jh_k3s_kubeconfig | default('') }} helm upgrade --cleanup-on-fail --install jupyterhub jupyterhub/jupyterhub --version={{ JH_CHART_VERSION }} --namespace {{ JH_NAMESPACE }} --create-namespace --values {{ JH_CONFIG_DIR }}/config.yaml --timeout 20m"
   async: 1200
