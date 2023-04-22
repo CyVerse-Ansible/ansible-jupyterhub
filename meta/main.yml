@@ -1,8 +1,9 @@
 ---
 galaxy_info:
-  author: Edwin Skidmore
+  author: cyverse_ansible
   description: This role will install jupyterhub with CyVerse auth integration. Jupyterhub is configured to use dockerspawner
   company: CyVerse
+  standalone: true
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value

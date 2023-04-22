@@ -18,7 +18,7 @@ jobs:
     env:
       ANSIBLE_CALLBACKS_ENABLED: profile_tasks
       ANSIBLE_EXTRA_VARS: ""
-      ANSIBLE_ROLE: cyverse-ansible.ansible_jupyterhub_docker
+      ANSIBLE_ROLE: cyverse_ansible.ansible_jupyterhub_docker
 
     steps:
       - uses: actions/checkout@v3
