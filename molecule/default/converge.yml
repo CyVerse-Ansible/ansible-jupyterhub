@@ -34,5 +34,5 @@
       when: ansible_os_family == 'Debian'
   roles:
     - geerlingguy.docker
-    - cyverse-ansible.ansible_k3s
+    - cyverse_ansible.ansible_k3s
     - cyverse_ansible.ansible_jupyterhub_docker
