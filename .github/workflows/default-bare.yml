@@ -84,3 +84,11 @@ jobs:
           ps aux
         if: ${{ always() }}
         continue-on-error: true
+      - name: After script - k8
+        run: |
+          set -x
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          kubectl get pods --all-namespaces
+          helm ls --all-namespaces
+        if: ${{ always() }}
+        continue-on-error: true
