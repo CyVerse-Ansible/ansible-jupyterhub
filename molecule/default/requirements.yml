@@ -5,3 +5,4 @@ collections:
 
 roles:
   - name: geerlingguy.docker
+  - name: cyverse-ansible.ansible_k3s
