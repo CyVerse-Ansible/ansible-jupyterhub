@@ -53,16 +53,17 @@ jobs:
         continue-on-error: true
       - name: run test
         run: |
-          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-playbook -i localhost, --connection=local --become -vvv molecule/default/converge.yml
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-playbook --connection=local --become -vvv molecule/default/converge.yml
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
       - name: idempotency run
         run: |
-          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-playbook -i localhost, --connection=local --become -vvv molecule/default/converge.yml | tee /tmp/idempotency.log | grep -q 'changed=0.*failed=0'  && (echo 'Idempotence test: pass' && exit 0)  || (echo 'Idempotence test: fail' && cat /tmp/idempotency.log && exit 1)
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-playbook --connection=local --become -vvv molecule/default/converge.yml | tee /tmp/idempotency.log | grep -q 'changed=0.*failed=0'  && (echo 'Idempotence test: pass' && exit 0)  || (echo 'Idempotence test: fail' && cat /tmp/idempotency.log && exit 1)
       - name: On failure
         run: |
-          ansible -i inventory --connection=local -m setup localhost
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE
+          ansible --connection=local -m setup localhost
         if: env.WORKFLOW_CONCLUSION == 'failure'  # notify only if failure
       - name: After script - files
         run: |
