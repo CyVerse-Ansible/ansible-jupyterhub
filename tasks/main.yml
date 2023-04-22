@@ -88,5 +88,7 @@
 
 - name: SHELL; install/Upgrade helm chart
   ansible.builtin.command:
-    cmd: "{{ jh_k3s_kubeconfig | default('') }} helm upgrade --cleanup-on-fail --install jupyterhub jupyterhub/jupyterhub --version={{ JH_CHART_VERSION }} --namespace {{ JH_NAMESPACE }} --create-namespace --values {{ JH_CONFIG_DIR }}/config.yaml --timeout 20m"
+    cmd: "helm upgrade --cleanup-on-fail --install jupyterhub jupyterhub/jupyterhub --version={{ JH_CHART_VERSION }} --namespace {{ JH_NAMESPACE }} --create-namespace --values {{ JH_CONFIG_DIR }}/config.yaml --timeout 20m"
+  environment:
+    KUBECONFIG: "{% if k3s_found is success %}/etc/rancher/k3s/k3s.yaml{% else %}{% endif %}"
   async: 1200
