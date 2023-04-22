@@ -1,0 +1,81 @@
+---
+name: default-bare
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  build:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.distribution }}-${{ matrix.version }}
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - distribution: ubuntu
+            version: '22.04'
+            experimental: false
+          - distribution: ubuntu
+            version: '20.04'
+            experimental: false
+    env:
+      ANSIBLE_CALLBACKS_ENABLED: profile_tasks
+      ANSIBLE_ROLE: cyverse_ansible.ansible_jupyterhub_docker
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: ${{ env.ANSIBLE_ROLE }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install ansible-lint flake8 yamllint
+          which ansible
+          pip3 install ansible
+          pip3 show ansible
+          ansible --version
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE
+          { echo '[defaults]'; echo 'callbacks_enabled = profile_tasks, timer'; echo 'roles_path = ../'; echo 'ansible_python_interpreter: /usr/bin/python3'; } >> ansible.cfg
+      - name: Galaxy dependencies
+        run: |
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-galaxy install --timeout 120 --verbose -r molecule/default/requirements.yml
+        continue-on-error: true
+      - name: run test
+        run: |
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-playbook -i localhost, --connection=local --become -vvv molecule/default/converge.yml
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+      - name: idempotency run
+        run: |
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-playbook -i localhost, --connection=local --become -vvv molecule/default/converge.yml | tee /tmp/idempotency.log | grep -q 'changed=0.*failed=0'  && (echo 'Idempotence test: pass' && exit 0)  || (echo 'Idempotence test: fail' && cat /tmp/idempotency.log && exit 1)
+      - name: On failure
+        run: |
+          ansible -i inventory --connection=local -m setup localhost
+        if: env.WORKFLOW_CONCLUSION == 'failure'  # notify only if failure
+      - name: After script - files
+        run: |
+          set -x
+          cat /opt/jupyterhub/config.yaml
+        continue-on-error: true
+      - name: After script - network
+        run: |
+          set -x
+          sudo ss -tunap | grep LISTEN
+        continue-on-error: true
+      - name: After script - process
+        run: |
+          set -x
+          ps aux
+        continue-on-error: true
