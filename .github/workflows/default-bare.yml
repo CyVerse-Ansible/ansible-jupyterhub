@@ -49,7 +49,7 @@ jobs:
           { echo '[defaults]'; echo 'callbacks_enabled = profile_tasks, timer'; echo 'inventory = hosts.ini'; echo 'roles_path = ../'; echo 'ansible_python_interpreter: /usr/bin/python3'; } >> ansible.cfg
       - name: Galaxy dependencies
         run: |
-          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-galaxy install --timeout 120 --verbose -r molecule/default/requirements.yml
+          cd $GITHUB_WORKSPACE/$ANSIBLE_ROLE && ansible-galaxy install --timeout 120 --verbose -r molecule/default/requirements.yml -p ../
         continue-on-error: true
       - name: run test
         run: |
