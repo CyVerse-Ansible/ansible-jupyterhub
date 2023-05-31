@@ -85,81 +85,28 @@ singleuser:
 {% if JH_SINGLEUSER_CPU_LIMIT is defined %}
     limit: {{ JH_SINGLEUSER_CPU_LIMIT }}
 {% endif %}
-{% if JH_PERUSER_STORAGE is defined and JH_PERUSER_STORAGE|bool %}
-  initContainers:
-    - name: volume-mount-ownership-fix
-      image: busybox
-      command:
-          [
-              "sh",
-              "-c",
-              "id && chown 1000:1000 /home/jovyan && chown 1000:1000 /home/jovyan/shared-readwrite && chown 1000:1000 {{ JH_PERUSER_STORAGE_MOUNT_DIR }} && ls -lhd /home/jovyan",
-          ]
-      securityContext:
-          runAsUser: 0
-#      volumeMounts:
-#      - name: home
-#        mountPath: /home/jovyan
-#        subPath: "jovyan"
-      # Here so we can chown it appropriately
-#      - name: home
-#        mountPath: /home/jovyan/shared-readwrite
-#        subPath: _shared
-#      - name: {{ JH_PERUSER_STORAGE_PV_NAME }}
-#        mountPath: {{ JH_PERUSER_STORAGE_MOUNT_DIR }}
-#  storage:
-#    extraVolumes:
-#    - name: "{{ JH_PERUSER_STORAGE_PV_NAME }}"
-#      persistentVolumeClaim:
-#        claimName: '{{ JH_PERUSER_STORAGE_PVC_NAME }}-{{ ansible_user }}'
-#    extraVolumeMounts:
-#    - name: "{{ JH_PERUSER_STORAGE_PV_NAME }}"
-#      mountPath: {{ JH_PERUSER_STORAGE_MOUNT_DIR }}
-  extraContainers:
-    - name: postgres
-      image: postgres:14.5 # use the latest version available at https://hub.docker.com/_/postgres/tags
-      args:
-        # Listen only on localhost, rather than on all interfaces
-        # This allows us to use passwordless login, as only the user notebook container can access this
-        - -c
-        - listen_addresses=127.0.0.1
-      resources:
-        limits:
-          # Best effort only. No more than 1 CPU, and if postgres uses more than {{ JH_PERUSER_STORAGE_MEMORY_LIMIT }}, restart it
-          memory: {{ JH_PERUSER_STORAGE_MEMORY_LIMIT }}
-          cpu: {{ JH_PERUSER_STORAGE_CPU_LIMIT }}
-        requests:
-          # If we don't set requests, k8s sets requests == limits!
-          # So we set something tiny
-          memory: 64Mi
-          cpu: 0.01
-      env:
-      # Configured using the env vars documented in https://hub.docker.com/_/postgres/
-      # Postgres is only listening on localhost, so we can trust all connections that come to it
-      - name: POSTGRES_HOST_AUTH_METHOD
-        value: "trust"
-      - name: POSTGRES_USER
-        value: "jovyan"
-      securityContext:
-        runAsUser: 1000
-#      volumeMounts:
-      # Mount the user homedirectory in the postgres db container as well, so postgres commands
-      # that load data into the db from disk work
-#      - name: home
-#        mountPath: /home/jovyan
-#        subPath: "jovyan"
-#      - name: {{ JH_PERUSER_STORAGE_PV_NAME }}
-#        mountPath: {{ JH_PERUSER_STORAGE_MOUNT_DIR }}
-{% endif %}
-{% if JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool %}
+{% if (JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool) or (IRODS_CSI_DRIVER_ENABLE is defined and IRODS_CSI_DRIVER_ENABLE|bool) %}
   storage:
     extraVolumes:
+{% if JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool %}
     - name: "{{ JH_SHARED_STORAGE_PV_NAME }}"
       persistentVolumeClaim:
         claimName: "{{ JH_SHARED_STORAGE_PVC_NAME }}"
+{% endif %}
+{% if IRODS_CSI_DRIVER_ENABLE is defined and IRODS_CSI_DRIVER_ENABLE|bool %}
+    - name: "{{ IRODS_CSI_DRIVER_PV_NAME }}"
+      persistentVolumeClaim:
+        claimName: "{{ IRODS_CSI_DRIVER_PVC_NAME }}"
+{% endif %}
     extraVolumeMounts:
+{% if JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool %}
     - name: "{{ JH_SHARED_STORAGE_PV_NAME }}"
       mountPath: {{ JH_SHARED_STORAGE_MOUNT_DIR }}
+{% endif %}
+{% if IRODS_CSI_DRIVER_ENABLE is defined and IRODS_CSI_DRIVER_ENABLE|bool %}
+    - name: "{{ IRODS_CSI_DRIVER_PV_NAME }}"
+      mountPath: {{ IRODS_CSI_DRIVER_MOUNT_DIR }}
+{% endif %}
 {% endif %}
 {% if JH_SINGLEUSER_GPU_ENABLE is defined and JH_SINGLEUSER_GPU_ENABLE|bool %}
   profileList:
@@ -195,7 +142,7 @@ ingress:
 {% endif %}
     kubernetes.io/ingress.class: "{{ JH_INGRESS_CLASS }}"
 {% if JH_INGRESS_HOSTNAME is defined %}
-  hosts:
+  hosts: 
   - {{ JH_INGRESS_HOSTNAME }}
 {% endif %}
 {% endif %}
