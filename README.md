@@ -38,7 +38,7 @@ Role Variables
 * JH_SHARED_STORAGE_ENABLE, set to true if enabling storage
 * JH_SHARED_STORAGE_PV_NAME, set to the persistent volume name
 * JH_SHARED_STORAGE_PVC_NAME, set to the persistent volume claim name
-* JH_SHARED_STORAGE_MOUNT_DIR, set to the mount directory within container, default = /home/shared
+* JH_SHARED_STORAGE_MOUNT_DIR, set to the mount directory within container, default = /home/jovyan/shared
 
 * JH_RESOURCES_REQUEST_CPU, if set this is the cpu setting for the hub container, 0m - 1000m
 * JH_RESOURCES_REQUEST_MEMORY, if set this is the memory setting for the hub container, 200Mi - 4Gi
