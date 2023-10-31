@@ -1,0 +1,6 @@
+---
+warn_list:
+  - experimental
+  - var-naming
+  - no-changed-when
+  - inline-env-var

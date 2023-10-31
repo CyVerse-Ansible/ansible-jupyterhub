@@ -1,3 +1,4 @@
+---
 JH_NAMESPACE: default
 JH_AUTH_CLASS: none
 JH_CONFIG_DIR: "/opt/jupyterhub"

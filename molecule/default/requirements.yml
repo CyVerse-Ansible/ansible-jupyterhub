@@ -1,0 +1,11 @@
+---
+
+collections:
+  - ansible.posix
+
+roles:
+  - name: geerlingguy.docker
+  # - name: cyverse-ansible.ansible_k3s
+  - src: https://github.com/juju4/ansible-k3s/
+    version: devel-ci2
+    name: cyverse_ansible.ansible_k3s
