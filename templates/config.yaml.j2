@@ -29,6 +29,12 @@ hub:
     pvc:
       storageClassName: "{{ JH_DB_PVC_STORAGE_CLASS_NAME }}"
 {% endif %}
+{% if JH_INCLUDE_DASK %}
+  services:
+    dask-gateway:
+      apiToken: "{{ JH_API_KEY }}"
+      display: false
+{% endif %}
   config:
     JupyterHub:
 # this could be useful later for forcing matching to specific nodes

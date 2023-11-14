@@ -1,3 +1,5 @@
+DASK_NAMESPACE: dask-gateway
+DASK_CHART_VERSION: "2023.9.0"
 JH_NAMESPACE: default
 JH_AUTH_CLASS: none
 JH_CONFIG_DIR: "/opt/jupyterhub"
