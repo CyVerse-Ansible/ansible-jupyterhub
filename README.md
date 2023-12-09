@@ -40,6 +40,11 @@ Role Variables
 * JH_SHARED_STORAGE_PVC_NAME, set to the persistent volume claim name
 * JH_SHARED_STORAGE_MOUNT_DIR, set to the mount directory within container, default = /home/jovyan/shared
 
+* IRODS_CSI_DRIVER_ENABLE, set to true if enabling a second pv/pvc for the irods csi driver
+* IRODS_CSI_DRIVER_PV_NAME, set to the persistent volume name for the irods csi driver
+* IRODS_CSI_DRIVER_PVC_NAME, set to the persistent volume claim name for the irods csi driver
+* IRODS_CSI_DRIVER_MOUNT_DIR, set to the mount directory within container for the irods csi driver
+
 * JH_RESOURCES_REQUEST_CPU, if set this is the cpu setting for the hub container, 0m - 1000m
 * JH_RESOURCES_REQUEST_MEMORY, if set this is the memory setting for the hub container, 200Mi - 4Gi
 
