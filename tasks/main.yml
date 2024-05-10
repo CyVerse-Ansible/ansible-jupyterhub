@@ -16,10 +16,22 @@
     state: directory
     mode: 0755
 
+- name: SHELL; generate an api key for dask auth
+  shell: openssl rand -hex 32
+  register: jh_api_key
+
+- set_fact:
+    JH_API_KEY: "{{ jh_api_key.stdout }}"
+
 - name: TEMPLATE; install config.yaml to {{ JH_CONFIG_DIR }}
   template:
     src: config.yaml.j2
     dest: "{{ JH_CONFIG_DIR }}/config.yaml"
+
+- name: TEMPLATE; install config_dask-gateway.yaml to {{ JH_CONFIG_DIR }}
+  template:
+    src: config_dask-gateway.yaml.j2
+    dest: "{{ JH_CONFIG_DIR }}/config_dask-gateway.yaml"
 
 - name: SHELL; locate k3s binary
   shell: command -v k3s
@@ -78,7 +90,18 @@
   shell:
     cmd: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/ ; helm repo update
 
-- name: SHELL; install/Upgrade helm chart
+- name: SHELL; install/upgrade jupyterhub
   shell:
    cmd: "{{ jh_k3s_kubeconfig | default('') }} helm upgrade --cleanup-on-fail --install jupyterhub jupyterhub/jupyterhub --version={{ JH_CHART_VERSION }} --namespace {{ JH_NAMESPACE }} --create-namespace --values {{ JH_CONFIG_DIR }}/config.yaml --timeout 20m"
   async: 1200
+
+- name: SHELL; Add jupyterhub chart repo
+  shell:
+    cmd: helm repo add dask https://helm.dask.org/ ; helm repo update
+  when: JH_INCLUDE_DASK|bool
+
+- name: SHELL; install/upgrade dask-gateway
+  shell:
+    cmd: "{{ jh_k3s_kubeconfig | default('') }}  helm upgrade --install dask-gateway dask-gateway --repo=https://helm.dask.org  --create-namespace --namespace {{ DASK_NAMESPACE }} --values {{ JH_CONFIG_DIR }}/config_dask-gateway.yaml --version {{ DASK_CHART_VERSION }}"
+  async: 1200
+  when: JH_INCLUDE_DASK|bool
