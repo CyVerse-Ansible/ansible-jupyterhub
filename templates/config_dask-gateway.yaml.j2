@@ -5,7 +5,7 @@ gateway:
   #prefix: "/services/dask-gateway"
 
   # Number of instances of the gateway-server to run
-  replicas: 1
+  replicas: {{ DASK_REPLICAS }}
 
   auth:
     # The auth type to use. One of {simple, kerberos, jupyterhub, custom}.
@@ -28,13 +28,13 @@ gateway:
             }
 
         c.Backend.cluster_options = Options(
-            Integer("worker_cores", 2, min=1, max=4, label="Worker Cores"),
-            Float("worker_memory", 4, min=1, max=8, label="Worker Memory (GiB)"),
-            String("image", default="ghcr.io/dask/dask-gateway:2023.9.0", label="Image"),
+            Integer("worker_cores", {{ DASK_WORKER_CORES }}, min={{ DASK_WORKER_CORES_MIN }}, max={{ DASK_WORKER_CORES_MAX }}, label="Worker Cores"),
+            Float("worker_memory", {{ DASK_WORKER_MEMORY }}, min={{ DASK_WORKER_MEMORY_MIN }}, max={{ DASK_WORKER_MEMORY_MAX }}, label="Worker Memory (GiB)"),
+            String("image", default="{{ DASK_GATEWAY_IMAGE}}", label="Image"),
             handler=option_handler,
         )
-        c.ClusterConfig.cluster_max_cores = 18
-        c.ClusterConfig.cluster_max_memory = "40 G"
+        c.ClusterConfig.cluster_max_cores = {{ DASK_CLUSTER_MAX_CORES }}
+        c.ClusterConfig.cluster_max_memory = {{ DASK_CLUSTER_MAX_MEMORY }}
 traefik:
   service:
     type: ClusterIP
