@@ -1,8 +1,8 @@
 DASK_NAMESPACE: default
 DASK_CHART_VERSION: "2023.9.0"
 DASK_REPLICAS: 1
-DASK_CLUSTER_MAX_CORES: "none" # example was 18
-DASK_CLUSTER_MAX_MEMORY: "none" # example was "40 G"
+DASK_CLUSTER_MAX_CORES: "None" # example was 18
+DASK_CLUSTER_MAX_MEMORY: "None" # example was "40 G"
 DASK_GATEWAY_IMAGE: "ghcr.io/dask/dask-gateway:2023.9.0"
 DASK_WORKER_CORES: 2
 DASK_WORKER_CORES_MIN: 1
