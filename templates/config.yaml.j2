@@ -91,13 +91,21 @@ singleuser:
 {% if JH_SINGLEUSER_CPU_LIMIT is defined %}
     limit: {{ JH_SINGLEUSER_CPU_LIMIT }}
 {% endif %}
-{% if JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool %}
+{% if (JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool) or (IRODS_CSI_DRIVER_ENABLE is defined and IRODS_CSI_DRIVER_ENABLE|bool) %}
   storage:
     extraVolumes:
+{% if JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool %}
     - name: "{{ JH_SHARED_STORAGE_PV_NAME }}"
       persistentVolumeClaim:
         claimName: "{{ JH_SHARED_STORAGE_PVC_NAME }}"
+{% endif %}
+{% if IRODS_CSI_DRIVER_ENABLE is defined and IRODS_CSI_DRIVER_ENABLE|bool %}
+    - name: "{{ IRODS_CSI_DRIVER_PV_NAME }}"
+      persistentVolumeClaim:
+        claimName: "{{ IRODS_CSI_DRIVER_PVC_NAME }}"
+{% endif %}
     extraVolumeMounts:
+{% if JH_SHARED_STORAGE_ENABLE is defined and JH_SHARED_STORAGE_ENABLE|bool %}
     - name: "{{ JH_SHARED_STORAGE_PV_NAME }}"
       mountPath: {{ JH_SHARED_STORAGE_MOUNT_DIR }}
 {% else %}
@@ -110,6 +118,11 @@ singleuser:
 #    extraVolumeMounts:
 #    - name: "JH_SHARED_STORAGE_PV_NAME"
 #      mountPath: JH_SHARED_STORAGE_MOUNT_DIR
+{% endif %}
+{% if IRODS_CSI_DRIVER_ENABLE is defined and IRODS_CSI_DRIVER_ENABLE|bool %}
+    - name: "{{ IRODS_CSI_DRIVER_PV_NAME }}"
+      mountPath: {{ IRODS_CSI_DRIVER_MOUNT_DIR }}
+{% endif %}
 {% endif %}
 {% if JH_SINGLEUSER_GPU_ENABLE is defined and JH_SINGLEUSER_GPU_ENABLE|bool %}
   profileList:
