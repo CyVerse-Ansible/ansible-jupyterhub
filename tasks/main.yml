@@ -93,7 +93,10 @@
 - name: SHELL; install/upgrade jupyterhub
   shell:
    cmd: "{{ jh_k3s_kubeconfig | default('') }} helm upgrade --cleanup-on-fail --install jupyterhub jupyterhub/jupyterhub --version={{ JH_CHART_VERSION }} --namespace {{ JH_NAMESPACE }} --create-namespace --values {{ JH_CONFIG_DIR }}/config.yaml --timeout 20m"
-  async: 1200
+  retries: 5
+  delay: 15
+  register: result
+  until: result.rc == 0
 
 - name: SHELL; Add jupyterhub chart repo
   shell:
@@ -103,5 +106,8 @@
 - name: SHELL; install/upgrade dask-gateway
   shell:
     cmd: "{{ jh_k3s_kubeconfig | default('') }}  helm upgrade --install dask-gateway dask-gateway --repo=https://helm.dask.org  --create-namespace --namespace {{ DASK_NAMESPACE }} --values {{ JH_CONFIG_DIR }}/config_dask-gateway.yaml --version {{ DASK_CHART_VERSION }}"
-  async: 1200
+  retries: 5
+  delay: 15
+  register: result
+  until: result.rc == 0
   when: JH_INCLUDE_DASK|bool
